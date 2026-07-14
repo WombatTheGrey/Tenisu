@@ -2,7 +2,19 @@
 {
     public record Country
     {
-        public required Uri Picture { get; init; }
-        public required string Code { get; init; }
+        public Uri Picture { get; private set; }
+        public string Code { get; private set; }
+
+        private Country()
+        {
+            Picture = null!;
+            Code = null!;
+        }
+
+        public Country(Uri picture, string code)
+        {
+            Picture = picture;
+            Code = code;
+        }
     }
 }

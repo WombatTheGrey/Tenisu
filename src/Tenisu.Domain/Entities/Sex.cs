@@ -2,7 +2,8 @@
 {
     public enum Sex
     {
-        M,
-        F
+        Undefined = 0,
+        M = 1,
+        F = 2
     }
 }
