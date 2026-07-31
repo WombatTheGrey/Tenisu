@@ -1,31 +1,34 @@
+using Microsoft.EntityFrameworkCore;
+using Tenisu.Infrastructure;
+using Tenisu.Infrastructure.Context;
+using Tenisu.Infrastructure.Initialization;
 
 namespace Tenisu.WebApi
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-
             builder.Services.AddControllers();
-            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
+            builder.Services.AddInfrastructure(builder.Configuration);
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+            if(app.Configuration.GetValue<bool>("EnableDatabaseMigration"))
+            {
+                await TenisuDBInitializer.InitializeAsync(app.Services, app.Lifetime.ApplicationStopping);
+            }
+
             if (app.Environment.IsDevelopment())
             {
                 app.MapOpenApi();
             }
 
             app.UseHttpsRedirection();
-
             app.UseAuthorization();
-
-
             app.MapControllers();
 
             app.Run();
