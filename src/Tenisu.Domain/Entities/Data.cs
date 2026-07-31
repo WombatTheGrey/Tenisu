@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Text.Json.Serialization;
 
 namespace Tenisu.Domain.Entities
 {
@@ -9,20 +10,24 @@ namespace Tenisu.Domain.Entities
         public int Weight { get; private set; }
         public int Height { get; private set; }
         public int Age { get; private set; }
-        public ImmutableArray<int> Last { get;}
+
+        private readonly List<int> _last;
+        public IReadOnlyCollection<int> Last => _last;
 
         private Data()
-        {            
+        {
+            _last = null!;
         }
 
-        public Data(int rank, int points, int weight, int height, int age, IEnumerable<int> last)
+        [JsonConstructor]
+        public Data(int rank, int points, int weight, int height, int age, IReadOnlyCollection<int> last)
         {
             Rank = rank;
             Points = points;
             Weight = weight;
             Height = height;
             Age = age;
-            Last = last.ToImmutableArray();
+            _last = last.ToList();
         }
 
     }
