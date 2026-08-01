@@ -5,7 +5,7 @@ using Tenisu.Infrastructure.Context;
 
 namespace Tenisu.Infrastructure.Repositories
 {
-    public class TenisuRepository : ITenisuRepository
+    internal class TenisuRepository : ITenisuRepository
     {
         private readonly TenisuDbContext _dbContext;
 

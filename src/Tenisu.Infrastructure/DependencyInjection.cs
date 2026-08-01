@@ -1,8 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Tenisu.Domain.Interfaces;
 using Tenisu.Infrastructure.Context;
 using Tenisu.Infrastructure.Initialization;
+using Tenisu.Infrastructure.Repositories;
 
 namespace Tenisu.Infrastructure
 {
@@ -28,6 +31,9 @@ namespace Tenisu.Infrastructure
                     await TenisuSeeder.SeedAsync((TenisuDbContext)db, cancellationToken);
                 });
             });
+
+            services.TryAddScoped<ITenisuRepository, TenisuRepository>();
+            services.TryAddScoped<IStatisticsRepository, StatisticsRepository>();
 
             return services;
         }
