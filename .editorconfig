@@ -168,6 +168,9 @@ dotnet_diagnostic.xUnit1051.severity = none
 
 dotnet_diagnostic.IDE0008.severity = none
 
+# Forward cancellation tokens
+dotnet_diagnostic.CA2016.severity = warning
+
 # Xml project files
 [*.{csproj,vbproj,vcxproj,vcxproj.filters,proj,nativeproj,locproj}]
 indent_size = 2

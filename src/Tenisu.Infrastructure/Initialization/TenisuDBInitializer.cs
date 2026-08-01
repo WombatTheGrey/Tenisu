@@ -6,7 +6,7 @@ namespace Tenisu.Infrastructure.Initialization
 {
     public static class TenisuDBInitializer
     {
-        public static async ValueTask InitializeAsync(IServiceProvider serviceProvider, CancellationToken token)
+        public static async Task InitializeAsync(IServiceProvider serviceProvider, CancellationToken token)
         {
             using var scope = serviceProvider.CreateScope();
 

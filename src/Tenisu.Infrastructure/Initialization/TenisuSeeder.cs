@@ -16,7 +16,7 @@ namespace Tenisu.Infrastructure.Initialization
             await SeedPlayersAsync(dbContext, jsonPlayers, cancellationToken);
         }
 
-        private static async ValueTask SeedCountriesAsync(TenisuDbContext dbContext, IEnumerable<Player> jsonPlayers, CancellationToken cancellationToken)
+        private static async Task SeedCountriesAsync(TenisuDbContext dbContext, IEnumerable<Player> jsonPlayers, CancellationToken cancellationToken)
         {
             if (await dbContext.Countries.AnyAsync(cancellationToken))
             {
@@ -29,7 +29,7 @@ namespace Tenisu.Infrastructure.Initialization
             await dbContext.SaveChangesAsync(cancellationToken);
         }
 
-        private static async ValueTask SeedPlayersAsync(TenisuDbContext dbContext, IEnumerable<Player> jsonPlayers, CancellationToken cancellationToken)
+        private static async Task SeedPlayersAsync(TenisuDbContext dbContext, IEnumerable<Player> jsonPlayers, CancellationToken cancellationToken)
         {
             if (await dbContext.Players.AnyAsync(cancellationToken: cancellationToken))
             {

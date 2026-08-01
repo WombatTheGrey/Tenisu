@@ -14,7 +14,7 @@ namespace Tenisu.Infrastructure.Initialization
             Converters = { new JsonStringEnumConverter() }
         };
 
-        public async static ValueTask<IEnumerable<Player>?> DeserializePlayersAsync(CancellationToken token)
+        public async static Task<IEnumerable<Player>?> DeserializePlayersAsync(CancellationToken token)
         {
             using var stream = CurrentType.Assembly.GetManifestResourceStream($"{CurrentType.Namespace}.InitialData.json")
             ?? throw new InvalidOperationException("Seed file not found.");
