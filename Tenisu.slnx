@@ -4,6 +4,9 @@
     <File Path="Directory.Build.props" />
     <File Path="Directory.Packages.props" />
   </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="Tests/Tenisu.Infrastructure.Tests/Tenisu.Infrastructure.Tests.csproj" Id="5e69b0e2-34fc-46fa-a545-81577c279450" />
+  </Folder>
   <Project Path="src/Tenisu.Application/Tenisu.Application.csproj" Id="9d976d78-8c91-4ef0-91ca-77864bb755e7" />
   <Project Path="src/Tenisu.Domain/Tenisu.Domain.csproj" Id="773120cb-080c-4e4b-b220-4860f1e8baa7" />
   <Project Path="src/Tenisu.Infrastructure/Tenisu.Infrastructure.csproj" />
