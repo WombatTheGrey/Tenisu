@@ -1,2 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\Tenisu.Domain\Tenisu.Domain.csproj" />
+  </ItemGroup>
 </Project>
