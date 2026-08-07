@@ -41,7 +41,7 @@ namespace Tenisu.Domain.Entities
         {
             if(string.IsNullOrWhiteSpace(FirstName) || string.IsNullOrWhiteSpace(LastName))
             {
-                throw new InvalidPlayerStateException("FirstName and LastName must not be null or whitespace to generate ShortName.");
+                throw new DomainException("FirstName and LastName must not be null or whitespace to generate ShortName.");
             }
 
             return $"{FirstName[0]}.{LastName.Substring(Math.Min(3, LastName.Length))}";

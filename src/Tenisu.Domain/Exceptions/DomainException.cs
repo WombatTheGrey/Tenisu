@@ -4,9 +4,9 @@ using System.Text;
 
 namespace Tenisu.Domain.Exceptions
 {
-    public class InvalidPlayerStateException : Exception
+    public class DomainException : Exception
     {
-        public InvalidPlayerStateException(string? message) : base(message)
+        public DomainException(string? message) : base(message)
         {
         }
     }

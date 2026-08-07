@@ -1,32 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Microsoft.Data.Sqlite;
+﻿using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using Tenisu.Infrastructure.Context;
 
 namespace Tenisu.Infrastructure.Tests
 {
+    [Parallelizable(ParallelScope.Fixtures)]
     public abstract class BaseRepositoryTests
     {
         private SqliteConnection _sqliteConnection;
         protected TenisuDbContext DbContext;
+        protected CancellationToken CancellationToken = TestContext.CurrentContext.CancellationToken;
 
         [SetUp]
         public async Task Setup()
         {
-            var cancellationToken = TestContext.CurrentContext.CancellationToken;
-            _sqliteConnection = new SqliteConnection("Filename=:memory");
-            await _sqliteConnection.OpenAsync(cancellationToken);
+            _sqliteConnection = new SqliteConnection("Filename=:memory:");
+            await _sqliteConnection.OpenAsync(CancellationToken);
 
             var options = new DbContextOptionsBuilder<TenisuDbContext>()
-                .UseSqlite()
+                .UseSqlite(_sqliteConnection)
                 .Options;
 
             DbContext = new TenisuDbContext(options);
 
-            await DbContext.Database.MigrateAsync(cancellationToken);
+            await DbContext.Database.EnsureCreatedAsync(CancellationToken);
         }
 
         [TearDown]
