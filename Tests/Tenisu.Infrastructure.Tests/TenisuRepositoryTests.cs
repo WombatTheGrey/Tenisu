@@ -33,10 +33,7 @@ namespace Tenisu.Infrastructure.Tests
         public async Task Should_FailToAddPlayer_When_IdHasAValue()
         {
             var playerData = new Data(15, 1234, 85, 185, 85, null);
-            new Data()
-            {
 
-            };
             //var player = new Player(12, "firstname", "lastname", Sex.F, _country, new Uri("http://localhost"))
         }
 

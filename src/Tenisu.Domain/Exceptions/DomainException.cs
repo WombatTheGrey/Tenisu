@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Tenisu.Domain.Exceptions
+﻿namespace Tenisu.Domain.Exceptions
 {
     public class DomainException : Exception
     {

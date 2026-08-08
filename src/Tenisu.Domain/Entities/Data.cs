@@ -1,8 +1,8 @@
-﻿using System.Text.Json.Serialization;
-using Tenisu.Domain.Exceptions;
+﻿using Tenisu.Domain.Exceptions;
 
 namespace Tenisu.Domain.Entities
 {
+    //Owned type
     public sealed record Data
     {
         public int Rank { get; init; }
@@ -10,11 +10,13 @@ namespace Tenisu.Domain.Entities
         public int Weight { get; init; }
         public int Height { get; init; }
         public int Age { get; init; }
+        public IReadOnlyCollection<int> Last { get; init; }
 
-        private readonly List<int> _last;
-        public IReadOnlyCollection<int> Last => _last;
+        private Data()
+        {
+            Last = null!;
+        }
 
-        //[JsonConstructor]
         public Data(int rank, int points, int weight, int height, int age, IReadOnlyCollection<int> last)
         {
             ArgumentOutOfRangeException.ThrowIfNegative(rank);
@@ -35,7 +37,7 @@ namespace Tenisu.Domain.Entities
                 throw new DomainException("Last should contain at most 5 matches");
             }
 
-            _last = last.ToList();
+            Last = last;
         }
 
     }
