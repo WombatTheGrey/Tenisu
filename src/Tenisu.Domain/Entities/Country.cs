@@ -1,9 +1,12 @@
-﻿namespace Tenisu.Domain.Entities
+﻿using Tenisu.Domain.Exceptions;
+
+namespace Tenisu.Domain.Entities
 {
+    //Navigation property
     public record Country
     {
-        public Uri Picture { get; private set; }
-        public string Code { get; private set; }
+        public Uri Picture { get; init; }
+        public string Code { get; init; }
 
         private Country()
         {
@@ -13,6 +16,14 @@
 
         public Country(Uri picture, string code)
         {
+            ArgumentNullException.ThrowIfNull(picture);
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(code);
+
+            if (code.Length != 3)
+            {
+                throw new DomainException("The country code must have exactly 3 letters");
+            }
+
             Picture = picture;
             Code = code;
         }

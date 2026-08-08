@@ -4,16 +4,16 @@ namespace Tenisu.Domain.Entities
 {
     public record Player
     {
-        public int Id { get; private set; }
-        public string FirstName { get; private set; }
-        public string LastName { get; private set; }
+        public int Id { get; init; }
+        public string FirstName { get; init; }
+        public string LastName { get; init; }
 
         private string? _shortName;
         public string ShortName => _shortName ??= GetShortName();
-        public Sex Sex { get; private set; }
-        public Country Country { get; private set; }
-        public Uri Picture { get; private set; }
-        public Data Data { get; private set; }
+        public Sex Sex { get; init; }
+        public Country Country { get; init; }//Navigation property
+        public Uri Picture { get; init; }
+        public Data Data { get; init; }//Owned type
 
         private Player()
         {
@@ -28,6 +28,17 @@ namespace Tenisu.Domain.Entities
 
         public Player(int id, string firstName, string lastName, Sex sex, Country country, Uri picture, Data data)
         {
+            ArgumentOutOfRangeException.ThrowIfLessThan(id, 0);
+            ArgumentException.ThrowIfNullOrWhiteSpace(firstName);
+            ArgumentException.ThrowIfNullOrWhiteSpace(lastName);
+            ArgumentNullException.ThrowIfNull(country);
+            ArgumentNullException.ThrowIfNull(picture);
+            ArgumentNullException.ThrowIfNull(data);
+            if(sex is Sex.Undefined)
+            {
+                throw new ArgumentException($"sex must have a value different from {Sex.Undefined}");
+            }
+
             Id = id;
             FirstName = firstName;
             LastName = lastName;
@@ -41,7 +52,7 @@ namespace Tenisu.Domain.Entities
         {
             if(string.IsNullOrWhiteSpace(FirstName) || string.IsNullOrWhiteSpace(LastName))
             {
-                throw new InvalidPlayerStateException("FirstName and LastName must not be null or whitespace to generate ShortName.");
+                throw new DomainException("FirstName and LastName must not be null or whitespace to generate ShortName.");
             }
 
             return $"{FirstName[0]}.{LastName.Substring(Math.Min(3, LastName.Length))}";
