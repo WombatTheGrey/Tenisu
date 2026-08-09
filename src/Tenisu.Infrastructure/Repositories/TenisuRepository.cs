@@ -23,16 +23,19 @@ namespace Tenisu.Infrastructure.Repositories
         {
             var players = await _dbContext.Players
                 .AsNoTracking()
+                .Include(x => x.Country)
                 .ToListAsync(cancellationToken);
             return players.AsReadOnly();
         }
 
         public async Task<IReadOnlyCollection<Player>> GetPagedPlayersAsync(int page, int pageSize, CancellationToken cancellationToken)
         {
-            ArgumentOutOfRangeException.ThrowIfLessThan(1, page);
-            ArgumentOutOfRangeException.ThrowIfLessThan(25, pageSize);
+            ArgumentOutOfRangeException.ThrowIfLessThan(page, 1);
+            ArgumentOutOfRangeException.ThrowIfLessThan(pageSize, 1);
 
-            var playersQuery = _dbContext.Players.AsNoTracking()
+            var playersQuery = _dbContext.Players
+                .AsNoTracking()
+                .Include(x => x.Country)
                 .OrderBy(p => p.Id)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize);

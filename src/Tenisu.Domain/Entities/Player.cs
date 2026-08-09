@@ -55,7 +55,7 @@ namespace Tenisu.Domain.Entities
                 throw new DomainException("FirstName and LastName must not be null or whitespace to generate ShortName.");
             }
 
-            return $"{FirstName[0]}.{LastName.Substring(Math.Min(3, LastName.Length))}";
+            return $"{FirstName[0]}.{LastName.Substring(0, Math.Min(3, LastName.Length))}".ToUpperInvariant();
         }
     }
 }

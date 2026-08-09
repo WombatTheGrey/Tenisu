@@ -1,5 +1,4 @@
-﻿using System.Numerics;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Tenisu.Domain.Entities;
 using Tenisu.Infrastructure.Context;
 
