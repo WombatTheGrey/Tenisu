@@ -67,10 +67,26 @@ namespace Tenisu.Infrastructure.Tests
         }
 
         [Test]
-        public async Task Should_ReturnNull_When_PlayerIsNotFound()
+        public async Task Should_ReturnNull_When_PlayerIdIsNotFound()
         {
-            var failedRetrieval = await _target.GetPlayerByIdAsync(12, CancellationToken);
+            var failedRetrieval = await _target.GetPlayerAsync(12, CancellationToken);
             Assert.That(failedRetrieval, Is.Null);
+        }
+
+        [Test]
+        public async Task Should_ReturnNull_When_PlayerInfoIsNotFound()
+        {
+            var failedRetrieval = await _target.GetPlayerAsync("wrong", "name", Sex.F, CancellationToken);
+            Assert.That(failedRetrieval, Is.Null);
+        }
+
+        [TestCase("", "value")]
+        [TestCase("  ", "value")]
+        [TestCase("value", "")]
+        [TestCase("value", "  ")]
+        public async Task Should_ThrowAnException_When_InvalidInputProvided(string? firstName, string? lastName)
+        {
+            Assert.ThrowsAsync<ArgumentException>(() => _target.GetPlayerAsync(firstName!, lastName!, Sex.F, CancellationToken));
         }
 
         [Test]
@@ -94,13 +110,28 @@ namespace Tenisu.Infrastructure.Tests
         }
 
         [Test]
-        public async Task Should_ReturnPlayer_When_PlayerIsFound()
+        public async Task Should_ReturnPlayer_When_PlayerIdIsFound()
         {
             var player = ProvidePlayer();
             await _target.AddPlayerAsync(player, CancellationToken);
             await this.UnitOfWork.SaveEntitiesAsync(CancellationToken);
-            var retrieved = await _target.GetPlayerByIdAsync(player.Id, CancellationToken);
+            var retrieved = await _target.GetPlayerAsync(player.Id, CancellationToken);
             Assert.That(retrieved, Is.Not.Null.And.EqualTo(player));
+        }
+
+        [Test]
+        public async Task Should_ReturnPlayer_When_PlayerInfoIsFound()
+        {
+            var player = ProvidePlayer();
+            await _target.AddPlayerAsync(player, CancellationToken);
+            await this.UnitOfWork.SaveEntitiesAsync(CancellationToken);
+            var retrieved = await _target.GetPlayerAsync(player.FirstName, player.LastName, player.Sex, CancellationToken);
+            Assert.That(retrieved, Is.Not.Null);
+            Assert.That(retrieved.FirstName, Is.EqualTo(player.FirstName));
+            Assert.That(retrieved.LastName, Is.EqualTo(player.LastName));
+            Assert.That(retrieved.Sex, Is.EqualTo(player.Sex));
+            Assert.That(retrieved.Country, Is.EqualTo(player.Country));
+            Assert.That(retrieved.Picture, Is.EqualTo(player.Picture));
         }
 
         [Test]
@@ -127,7 +158,7 @@ namespace Tenisu.Infrastructure.Tests
         [Test]
         public async Task Should_Return_EmptyPagedCollection_When_NoPlayersAdded()
         {
-            var players = await _target.GetPagedPlayersAsync(1, 25, CancellationToken);
+            var players = await _target.GetPlayersByPageAsync(1, 25, CancellationToken);
             Assert.That(players, Is.Not.Null.And.Empty);
         }
 
@@ -137,7 +168,7 @@ namespace Tenisu.Infrastructure.Tests
             var player = ProvidePlayer();
             await _target.AddPlayerAsync(player, CancellationToken);
             await this.UnitOfWork.SaveEntitiesAsync(CancellationToken);
-            var players = await _target.GetPagedPlayersAsync(2, 25, CancellationToken);
+            var players = await _target.GetPlayersByPageAsync(2, 25, CancellationToken);
             Assert.That(players, Is.Not.Null.And.Empty);
         }
 
@@ -145,7 +176,7 @@ namespace Tenisu.Infrastructure.Tests
         [TestCase(1, -1)]
         public async Task Should_ThrowArgumentException_When_InvalidParameters(int page, int pageSize)
         {
-            Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => _target.GetPagedPlayersAsync(page, pageSize, CancellationToken));
+            Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => _target.GetPlayersByPageAsync(page, pageSize, CancellationToken));
         }
 
         [Test]
@@ -175,10 +206,10 @@ namespace Tenisu.Infrastructure.Tests
             await _target.AddPlayerAsync(providedPlayer, CancellationToken);
             await this.UnitOfWork.SaveEntitiesAsync(CancellationToken);
 
-            var firstPage = await _target.GetPagedPlayersAsync(1, 4, CancellationToken);
+            var firstPage = await _target.GetPlayersByPageAsync(1, 4, CancellationToken);
             Assert.That(firstPage.Select(p => p.Id), Is.EquivalentTo(providedPlayers.Select(p => p.Id)));
 
-            var secondPage = await _target.GetPagedPlayersAsync(2, 4, CancellationToken);
+            var secondPage = await _target.GetPlayersByPageAsync(2, 4, CancellationToken);
             Assert.That(secondPage.Select(p => p.Id), Is.EquivalentTo([providedPlayer.Id]));
         }
 

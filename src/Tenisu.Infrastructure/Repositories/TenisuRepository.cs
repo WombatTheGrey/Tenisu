@@ -14,9 +14,22 @@ namespace Tenisu.Infrastructure.Repositories
             _dbContext = context;
         }
 
-        public ValueTask<Player?> GetPlayerByIdAsync(int playerId, CancellationToken cancellationToken)
+        public Task<Player?> GetPlayerAsync(int playerId, CancellationToken cancellationToken)
         {
-            return _dbContext.Players.FindAsync([playerId], cancellationToken: cancellationToken);
+            return _dbContext.Players.FindAsync([playerId], cancellationToken: cancellationToken).AsTask();
+        }
+
+        public Task<Player?> GetPlayerAsync(string firstName, string lastName, Sex sex, CancellationToken cancellationToken)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(firstName);
+            ArgumentException.ThrowIfNullOrWhiteSpace(lastName);
+            return _dbContext.Players
+                .AsNoTracking()
+                .Include(p => p.Country)
+                .Where(p => p.FirstName == firstName
+                    && p.LastName == lastName
+                    && p.Sex == sex)
+                .SingleOrDefaultAsync(cancellationToken);
         }
 
         public async Task<IReadOnlyCollection<Player>> GetAllPlayersAsync(CancellationToken cancellationToken)
@@ -28,7 +41,7 @@ namespace Tenisu.Infrastructure.Repositories
             return players.AsReadOnly();
         }
 
-        public async Task<IReadOnlyCollection<Player>> GetPagedPlayersAsync(int page, int pageSize, CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<Player>> GetPlayersByPageAsync(int page, int pageSize, CancellationToken cancellationToken)
         {
             ArgumentOutOfRangeException.ThrowIfLessThan(page, 1);
             ArgumentOutOfRangeException.ThrowIfLessThan(pageSize, 1);
@@ -62,5 +75,6 @@ namespace Tenisu.Infrastructure.Repositories
         {
             await _dbContext.Countries.AddAsync(country, cancellationToken);
         }
+
     }
 }
