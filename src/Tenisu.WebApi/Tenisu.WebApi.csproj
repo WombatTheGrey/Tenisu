@@ -8,6 +8,7 @@
     <PackageReference Include="Microsoft.OpenApi" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Tenisu.Application\Tenisu.Application.csproj" />
     <ProjectReference Include="..\Tenisu.Infrastructure\Tenisu.Infrastructure.csproj" />
   </ItemGroup>
 </Project>

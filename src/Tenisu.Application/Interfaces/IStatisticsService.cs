@@ -4,6 +4,6 @@
     {
         Task GetMostSuccesfullCountryAsync(CancellationToken cancellationToken);
         Task GetAverageIMCAsync(CancellationToken cancellationToken);
-        Task GetMedianPlayerHeight(CancellationToken cancellationToken);
+        Task GetMedianPlayerHeightAsync(CancellationToken cancellationToken);
     }
 }

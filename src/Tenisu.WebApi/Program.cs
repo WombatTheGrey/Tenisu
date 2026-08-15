@@ -1,6 +1,5 @@
-using Microsoft.EntityFrameworkCore;
+using Tenisu.Application;
 using Tenisu.Infrastructure;
-using Tenisu.Infrastructure.Context;
 using Tenisu.Infrastructure.Initialization;
 
 namespace Tenisu.WebApi
@@ -14,6 +13,7 @@ namespace Tenisu.WebApi
             builder.Services.AddControllers();
             builder.Services.AddOpenApi();
             builder.Services.AddInfrastructure(builder.Configuration);
+            builder.Services.AddApplication();
 
             var app = builder.Build();
 

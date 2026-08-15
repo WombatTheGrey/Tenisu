@@ -11,8 +11,6 @@ namespace Tenisu.Infrastructure.Tests
     {
         private ITenisuRepository _target;
 
-        private const string CountryCode = "FRA";
-        private static readonly Country Country = new Country(new Uri("http://localhost"), CountryCode);
         private static readonly Data Data = new Data(15, 1234, 85, 185, 85,new List<int> { 0, 1, 0, 1, 0 });
 
         [SetUp]
@@ -67,14 +65,14 @@ namespace Tenisu.Infrastructure.Tests
         }
 
         [Test]
-        public async Task Should_ReturnNull_When_PlayerIdIsNotFound()
+        public async Task GetPlayerAsync_ReturnsNull_WhenPlayerIdIsNotFound()
         {
             var failedRetrieval = await _target.GetPlayerAsync(12, CancellationToken);
             Assert.That(failedRetrieval, Is.Null);
         }
 
         [Test]
-        public async Task Should_ReturnNull_When_PlayerInfoIsNotFound()
+        public async Task GetPlayerAsync_ReturnNull_WhenPlayerInfoIsNotFound()
         {
             var failedRetrieval = await _target.GetPlayerAsync("wrong", "name", Sex.F, CancellationToken);
             Assert.That(failedRetrieval, Is.Null);
@@ -84,13 +82,13 @@ namespace Tenisu.Infrastructure.Tests
         [TestCase("  ", "value")]
         [TestCase("value", "")]
         [TestCase("value", "  ")]
-        public async Task Should_ThrowAnException_When_InvalidInputProvided(string? firstName, string? lastName)
+        public async Task GetPlayerAsync_ThrowAnException_WhenInvalidInputProvided(string? firstName, string? lastName)
         {
             Assert.ThrowsAsync<ArgumentException>(() => _target.GetPlayerAsync(firstName!, lastName!, Sex.F, CancellationToken));
         }
 
         [Test]
-        public async Task Should_FailToAddPlayer_When_AlreadyExists()
+        public async Task AddPlayerAsync_ThrowsException_WhenPlayerAlreadyExists()
         {
             var player = ProvidePlayer();
             await _target.AddPlayerAsync(player, CancellationToken);
@@ -101,7 +99,7 @@ namespace Tenisu.Infrastructure.Tests
         }
 
         [Test]
-        public async Task Should_AddPlayer_When_PlayerIsValid()
+        public async Task AddPlayerAsync_AddsPlayer_WhenPlayerIsValid()
         {
             var player = ProvidePlayer();
             await _target.AddPlayerAsync(player, CancellationToken);
@@ -120,7 +118,7 @@ namespace Tenisu.Infrastructure.Tests
         }
 
         [Test]
-        public async Task Should_ReturnPlayer_When_PlayerInfoIsFound()
+        public async Task AddPlayerAsync_ReturnsPlayer_WhenPlayerInfoIsFound()
         {
             var player = ProvidePlayer();
             await _target.AddPlayerAsync(player, CancellationToken);
@@ -135,7 +133,7 @@ namespace Tenisu.Infrastructure.Tests
         }
 
         [Test]
-        public async Task Should_ReturnCount_InEveryCase()
+        public async Task GetPlayersCountAsync_ReturnsCount_InEveryCase()
         {
             var firstCount = await _target.GetPlayersCountAsync(CancellationToken);
             Assert.That(firstCount, Is.Zero);
@@ -149,21 +147,21 @@ namespace Tenisu.Infrastructure.Tests
         }
 
         [Test]
-        public async Task Should_Return_EmptyCollection_When_NoPlayersAdded()
+        public async Task GetAllPlayersAsync_ReturnsEmptyCollection_WhenNoPlayersAdded()
         {
             var players = await _target.GetAllPlayersAsync(CancellationToken);
             Assert.That(players, Is.Not.Null.And.Empty);
         }
 
         [Test]
-        public async Task Should_Return_EmptyPagedCollection_When_NoPlayersAdded()
+        public async Task GetPlayersByPageAsync_ReturnsEmptyPagedCollection_WhenNoPlayersAdded()
         {
             var players = await _target.GetPlayersByPageAsync(1, 25, CancellationToken);
             Assert.That(players, Is.Not.Null.And.Empty);
         }
 
         [Test]
-        public async Task Should_Return_EmptyPagedCollection_When_PageIsEmpty()
+        public async Task GetPlayersByPageAsync_ReturnsEmptyPagedCollection_WhenPageIsEmpty()
         {
             var player = ProvidePlayer();
             await _target.AddPlayerAsync(player, CancellationToken);
@@ -174,13 +172,13 @@ namespace Tenisu.Infrastructure.Tests
 
         [TestCase(-1, 10)]
         [TestCase(1, -1)]
-        public async Task Should_ThrowArgumentException_When_InvalidParameters(int page, int pageSize)
+        public async Task GetPlayersByPageAsync_ThrowsArgumentException_WhenInvalidParameters(int page, int pageSize)
         {
             Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => _target.GetPlayersByPageAsync(page, pageSize, CancellationToken));
         }
 
         [Test]
-        public async Task Should_Return_AllPlayers_When_PlayersAdded()
+        public async Task GetAllPlayersAsync_ReturnsAllPlayers_WhenPlayersAdded()
         {
             var providedPlayers = ProvidePlayers().ToList();
 
@@ -195,7 +193,7 @@ namespace Tenisu.Infrastructure.Tests
         }
 
         [Test]
-        public async Task Should_Return_AllPagedPlayers_When_PlayersAdded()
+        public async Task GetPlayersByPageAsync_ReturnAllPagedPlayers_WhenFound()
         {
             var providedPlayers = ProvidePlayers().ToList();
             var providedPlayer = ProvidePlayer();

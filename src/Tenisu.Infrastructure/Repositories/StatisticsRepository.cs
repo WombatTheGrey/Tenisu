@@ -14,22 +14,25 @@ namespace Tenisu.Infrastructure.Repositories
             _dbContext = dbContext;
         }
 
-        public Task<double> GetAverageIMCAsync(CancellationToken cancellationToken)
+        public async Task<double> GetAverageIMCAsync(CancellationToken cancellationToken)
         {
-            return _dbContext.Players.AsNoTracking()
-                .AverageAsync(p => p.Data.Weight / Math.Pow(p.Data.Height, 2), cancellationToken);
+            var average = await _dbContext.Players.AsNoTracking()
+                .AverageAsync(p => p.Data.Weight * 10 / Math.Pow(p.Data.Height, 2), cancellationToken);
+
+            return Math.Round(average, 4);
         }
+
         public async Task<double> GetMedianPlayerHeight(CancellationToken cancellationToken)
         {
             var count = await _dbContext.Players.CountAsync(cancellationToken);
 
             var median = await _dbContext.Players.AsNoTracking()
                 .OrderBy(p => p.Data.Height)
-                .Skip(count / 2)
+                .Skip((count - 1) / 2)
                 .Take(2 - (count % 2))
                 .AverageAsync(p => p.Data.Height, cancellationToken);
 
-            return median;
+            return Math.Round(median, 4);
         }
 
         public async Task<Country> GetMostSuccesfullCountryAsync(CancellationToken cancellationToken)
@@ -40,10 +43,10 @@ namespace Tenisu.Infrastructure.Repositories
 
             var country = groups
                 .Select(g => new
-                    {
-                        Country = g.Key,
-                        Ratio = g.SelectMany(p => p.Data.Last).Average()
-                    })
+                {
+                    Country = g.Key,
+                    Ratio = g.SelectMany(p => p.Data.Last).Average()
+                })
                 .OrderByDescending(x => x.Ratio)
                 .First()
                 .Country;
