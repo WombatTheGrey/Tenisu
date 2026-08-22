@@ -1,4 +1,4 @@
-﻿namespace Tenisu.Application.Entity
+﻿namespace Tenisu.Application.Model
 {
     public record Page<T>
     {

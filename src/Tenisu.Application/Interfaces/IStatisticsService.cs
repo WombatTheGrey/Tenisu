@@ -1,9 +1,11 @@
-﻿namespace Tenisu.Application.Interfaces
+﻿using Tenisu.Application.DTOs;
+
+namespace Tenisu.Application.Interfaces
 {
     public interface IStatisticsService
     {
-        Task GetMostSuccesfullCountryAsync(CancellationToken cancellationToken);
-        Task GetAverageIMCAsync(CancellationToken cancellationToken);
-        Task GetMedianPlayerHeightAsync(CancellationToken cancellationToken);
+        Task<CountryDTO> GetMostSuccessfulCountryAsync(CancellationToken cancellationToken);
+        Task<double> GetAverageIMCAsync(CancellationToken cancellationToken);
+        Task<double> GetMedianPlayerHeightAsync(CancellationToken cancellationToken);
     }
 }

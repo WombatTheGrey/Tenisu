@@ -1,13 +1,13 @@
-﻿using Tenisu.Application.Entity;
-using Tenisu.Domain.Entities;
+﻿using Tenisu.Application.DTOs;
+using Tenisu.Application.Model;
 
 namespace Tenisu.Application.Interfaces
 {
     public interface IPlayerService
     {
-        Task<Player?> GetPlayerAsync(int playerId, CancellationToken cancellationToken);
-        Task<IReadOnlyCollection<Player>> GetAllPlayersAsync(CancellationToken cancellationToken);
-        Task<Page<Player>> GetPageOfPlayersAsync(int pageNum, int pageSize, CancellationToken cancellationToken);
-        Task<int> AddPlayerAsync(Player player, CancellationToken cancellationToken);
+        Task<PlayerResponseDTO?> GetPlayerAsync(int playerId, CancellationToken cancellationToken);
+        Task<IReadOnlyCollection<PlayerResponseDTO>> GetAllPlayersAsync(CancellationToken cancellationToken);
+        Task<Page<PlayerResponseDTO>> GetPageOfPlayersAsync(int pageNum, int pageSize, CancellationToken cancellationToken);
+        Task<int> AddPlayerAsync(PlayerDTO playerDto, CancellationToken cancellationToken);
     }
 }
