@@ -1,6 +1,9 @@
+using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
 using Tenisu.Application;
 using Tenisu.Infrastructure;
 using Tenisu.Infrastructure.Initialization;
+using Tenisu.WebApi.Handlers;
 
 namespace Tenisu.WebApi
 {
@@ -8,30 +11,66 @@ namespace Tenisu.WebApi
     {
         public static async Task Main(string[] args)
         {
+            //Builder :
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddControllers();
-            builder.Services.AddOpenApi();
             builder.Services.AddInfrastructure(builder.Configuration);
             builder.Services.AddApplication();
 
+            builder.Services.AddProblemDetails();
+            builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
+            builder.Services
+                .AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                });
+
+            builder.Services.AddOpenApi();
+            builder.Services.AddRateLimiter(options =>
+            {
+                options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+                options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(_ =>
+                    RateLimitPartition.GetFixedWindowLimiter("global", _ => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = 100,
+                        Window = TimeSpan.FromMinutes(1)
+                    }));
+            });
+            
+            //App :
             var app = builder.Build();
-
-            if(app.Configuration.GetValue<bool>("EnableDatabaseMigration"))
+            try
             {
-                await TenisuDBInitializer.InitializeAsync(app.Services, app.Lifetime.ApplicationStopping);
-            }
+                if (app.Configuration.GetValue<bool>("EnableDatabaseMigration"))
+                {
+                    await TenisuDBInitializer.InitializeAsync(app.Services, app.Lifetime.ApplicationStopping);
+                }
 
-            if (app.Environment.IsDevelopment())
-            {
+                app.UseExceptionHandler();
+
                 app.MapOpenApi();
+                app.UseSwaggerUI(options =>
+                {
+                    options.SwaggerEndpoint("/openapi/v1.json", "Tenisu API");
+                    options.DocumentTitle = "Tenisu API";
+                });
+
+                app.UseHttpsRedirection();
+                app.UseRateLimiter();
+                app.UseAuthorization();
+                app.MapControllers();
+
+                app.Run();
             }
-
-            app.UseHttpsRedirection();
-            app.UseAuthorization();
-            app.MapControllers();
-
-            app.Run();
+            catch (Exception ex)
+            {
+                var logger = app.Services.GetRequiredService<ILogger<Program>>();
+                logger.LogCritical(ex, "Application terminated unexpectedly.");
+                throw;
+            }
         }
     }
 }
