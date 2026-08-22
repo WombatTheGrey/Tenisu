@@ -1,8 +1,12 @@
 ﻿namespace Tenisu.Domain.Exceptions
 {
-    public class EntityAlreadyExistsException : DomainException
+    public class EntityAlreadyExistsException : Exception
     {
         public EntityAlreadyExistsException(string? message) : base(message)
+        {
+        }
+
+        public EntityAlreadyExistsException(string? message, Exception innerException) : base(message, innerException)
         {
         }
     }

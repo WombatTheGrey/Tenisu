@@ -36,7 +36,7 @@ namespace Tenisu.Domain.Entities
             ArgumentNullException.ThrowIfNull(data);
             if(sex is Sex.Undefined)
             {
-                throw new ArgumentException($"sex must have a value different from {Sex.Undefined}");
+                throw new DomainException($"sex must have a value different from {Sex.Undefined}");
             }
 
             Id = id;
@@ -52,7 +52,7 @@ namespace Tenisu.Domain.Entities
         {
             if(string.IsNullOrWhiteSpace(FirstName) || string.IsNullOrWhiteSpace(LastName))
             {
-                throw new DomainException("FirstName and LastName must not be null or whitespace to generate ShortName.");
+                throw new InvalidOperationException("FirstName and LastName must not be null or whitespace to generate ShortName.");
             }
 
             return $"{FirstName[0]}.{LastName.Substring(0, Math.Min(3, LastName.Length))}".ToUpperInvariant();

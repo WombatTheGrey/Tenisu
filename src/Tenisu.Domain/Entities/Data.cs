@@ -10,7 +10,7 @@ namespace Tenisu.Domain.Entities
         public int Weight { get; init; }
         public int Height { get; init; }
         public int Age { get; init; }
-        public IReadOnlyCollection<int> Last { get; init; }
+        public IReadOnlyCollection<int> Last { get; init; }//represented as int for convenance. But could be a more appropriate datatype because the values are only 1 and 0.
 
         private Data()
         {
@@ -35,6 +35,10 @@ namespace Tenisu.Domain.Entities
             if(last.Count > 5)
             {
                 throw new DomainException("Last should contain at most 5 matches");
+            }
+            if(last.Any(l => l != 0 && l != 1))
+            {
+                throw new DomainException("Last matches can only be victories or defeats. So Last must contain only 1 and 0");
             }
 
             Last = last;

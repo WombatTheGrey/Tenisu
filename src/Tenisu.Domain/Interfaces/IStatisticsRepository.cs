@@ -4,7 +4,7 @@ namespace Tenisu.Domain.Interfaces
 {
     public interface IStatisticsRepository
     {
-        Task<Country> GetMostSuccesfullCountryAsync(CancellationToken cancellationToken);
+        Task<Country> GetMostSuccessfulCountryAsync(CancellationToken cancellationToken);
         Task<double> GetAverageIMCAsync(CancellationToken cancellationToken);
         Task<double> GetMedianPlayerHeight(CancellationToken cancellationToken);
     }
