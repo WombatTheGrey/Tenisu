@@ -11,6 +11,11 @@ namespace Tenisu.Infrastructure.Initialization
             var jsonPlayers = await TenisuJsonDeserializer.DeserializePlayersAsync(cancellationToken)
                 ?? throw new InvalidOperationException("Failed to deserialize players from JSON.");
 
+            if(!dbContext.Database.IsSqlServer())
+            {
+                throw new InvalidOperationException($"Seeder requires SQL Server; current provider is '{dbContext.Database.ProviderName}'.");
+            }
+
             await SeedCountriesAsync(dbContext, jsonPlayers, cancellationToken);
             await SeedPlayersAsync(dbContext, jsonPlayers, cancellationToken);
         }

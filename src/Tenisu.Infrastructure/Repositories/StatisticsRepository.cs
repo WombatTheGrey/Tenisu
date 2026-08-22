@@ -35,7 +35,10 @@ namespace Tenisu.Infrastructure.Repositories
             return Math.Round(median, 4);
         }
 
-        public async Task<Country> GetMostSuccesfullCountryAsync(CancellationToken cancellationToken)
+        //Note : This implementation loads all the players in memory. I choose to live it like this because
+        //SQLite can't deal with collection queries accross rows "g.SelectMany(p => p.Data.Last).Average()" breaks;
+        //The best implementation would of course be streaming and computing on the go. 
+        public async Task<Country> GetMostSuccessfulCountryAsync(CancellationToken cancellationToken)
         {
             var groups = await _dbContext.Players.AsNoTracking()
                 .GroupBy(p => p.Country)

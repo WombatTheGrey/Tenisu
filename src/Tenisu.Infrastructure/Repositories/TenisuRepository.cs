@@ -16,7 +16,9 @@ namespace Tenisu.Infrastructure.Repositories
 
         public Task<Player?> GetPlayerAsync(int playerId, CancellationToken cancellationToken)
         {
-            return _dbContext.Players.FindAsync([playerId], cancellationToken: cancellationToken).AsTask();
+            return _dbContext.Players
+                .Include(x => x.Country)
+                .FirstOrDefaultAsync(p => p.Id == playerId, cancellationToken);
         }
 
         public Task<Player?> GetPlayerAsync(string firstName, string lastName, Sex sex, CancellationToken cancellationToken)

@@ -34,6 +34,7 @@ namespace Tenisu.Infrastructure
 
             services.TryAddScoped<ITenisuRepository, TenisuRepository>();
             services.TryAddScoped<IStatisticsRepository, StatisticsRepository>();
+            services.TryAddScoped<IUnitOfWork, UnitOfWork>();
 
             return services;
         }
