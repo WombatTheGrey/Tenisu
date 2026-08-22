@@ -57,9 +57,9 @@ namespace Tenisu.Infrastructure.Tests
         }
 
         [Test]
-        public async Task GetMostSuccesfullCountryAsync_ReturnsExpectedValue()
+        public async Task GetMostSuccessfulCountryAsync_ReturnsExpectedValue()
         {
-            var result = await _target.GetMostSuccesfullCountryAsync(CancellationToken);
+            var result = await _target.GetMostSuccessfulCountryAsync(CancellationToken);
             Assert.That(result, Is.EqualTo(Country));
         }
     }

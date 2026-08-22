@@ -21,14 +21,14 @@ namespace Tenisu.Infrastructure.Tests
 
         #region Country
         [Test]
-        public async Task Should_ReturnNull_When_CountryIsNotFound()
+        public async Task GetCountryAsync_ReturnsNull_WhenCountryIsNotFound()
         {
             var failedRetrieval = await _target.GetCountryAsync(CountryCode, CancellationToken);
             Assert.That(failedRetrieval, Is.Null);
         }
 
         [Test]
-        public async Task Should_ReturnCountry_When_CountryIsFound()
+        public async Task GetCountryAsync_ReturnsCountry_WhenCountryIsFound()
         {
             await _target.AddCountryAsync(Country, CancellationToken);
             await this.UnitOfWork.SaveEntitiesAsync(CancellationToken);
@@ -87,13 +87,14 @@ namespace Tenisu.Infrastructure.Tests
             Assert.ThrowsAsync<ArgumentException>(() => _target.GetPlayerAsync(firstName!, lastName!, Sex.F, CancellationToken));
         }
 
+        //Note : this test uses sqlite, and the implementation expects SQlServer. So SaveEntitiesAsync() will never throw EntityAlreadyExistsException
+        //I do not think it's a good choice to alter the implementation just to serve this single code. So it will stay as is.
         [Test]
         public async Task AddPlayerAsync_ThrowsException_WhenPlayerAlreadyExists()
         {
             var player = ProvidePlayer();
             await _target.AddPlayerAsync(player, CancellationToken);
             await this.UnitOfWork.SaveEntitiesAsync(CancellationToken);
-
             await _target.AddPlayerAsync(player, CancellationToken);
             Assert.ThrowsAsync<DbUpdateException>(() => this.UnitOfWork.SaveEntitiesAsync(CancellationToken));
         }

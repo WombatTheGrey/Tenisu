@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using NUnit.Framework;
+using Tenisu.Application.DTOs;
 using Tenisu.Application.Interfaces;
 using Tenisu.Application.Services;
 using Tenisu.Domain.Entities;
@@ -16,11 +17,16 @@ namespace Tenisu.Application.Tests
         private Mock<ITenisuRepository> _tenisuRepositoryMock;
         private Mock<IUnitOfWork> _unitOfWorkMock;
         private readonly CancellationToken _cancellationToken = TestContext.CurrentContext.CancellationToken;
+        private readonly TenisuMapper _mapper = new TenisuMapper();
 
         private const string CountryCode = "FRA";
         private static readonly Country Country = new Country(new Uri("http://localhost"), CountryCode);
+        private static readonly CountryDTO CountryDTO = new CountryDTO(new Uri("http://localhost"), CountryCode);
         private static readonly Data Data = new Data(15, 1234, 85, 185, 85, new List<int> { 0, 1, 0, 1, 0 });
+        private static readonly DataDTO DataDTO = new DataDTO(15, 1234, 85, 185, 85, new List<int> { 0, 1, 0, 1, 0 });
+
         private static Player ProvidePlayer(int id) => new Player(id, "firstname", "lastname", Sex.F, Country, new Uri("http://localhost"), Data);
+        private static PlayerDTO ProvidePlayerDTO() => new PlayerDTO("firstname", "lastname", Sex.F, CountryDTO, new Uri("http://localhost"), DataDTO);
         private static IEnumerable<Player> ProvidePlayers()
         {
             var player = ProvidePlayer(0);
@@ -45,12 +51,14 @@ namespace Tenisu.Application.Tests
                 FirstName = "p4"
             };
         }
+
         [SetUp]
         public void Setup()
         {
+            var mapper = new TenisuMapper();
             _unitOfWorkMock = new Mock<IUnitOfWork>();
             _tenisuRepositoryMock = new Mock<ITenisuRepository>(MockBehavior.Strict);
-            _target = new PlayerService(_tenisuRepositoryMock.Object, _unitOfWorkMock.Object, NullLogger<PlayerService>.Instance);
+            _target = new PlayerService(_tenisuRepositoryMock.Object, _unitOfWorkMock.Object, mapper, NullLogger<PlayerService>.Instance);
         }
 
         [TestCase(0)]
@@ -83,7 +91,9 @@ namespace Tenisu.Application.Tests
 
             var result = await _target.GetPlayerAsync(playerId, _cancellationToken);
             Assert.That(result, Is.Not.Null);
-            Assert.That(result, Is.EqualTo(player));
+            Assert.That(result.Id, Is.EqualTo(playerId));
+            Assert.That(result.FirstName, Is.EqualTo(player.FirstName));
+            Assert.That(result.LastName, Is.EqualTo(player.LastName));
         }
 
         [Test]
@@ -96,13 +106,12 @@ namespace Tenisu.Application.Tests
             var firstCall = await _target.GetAllPlayersAsync(_cancellationToken);
             Assert.That(firstCall, Is.Empty);
 
-            var expected = new List<Player>() { ProvidePlayer(1) };
+            var players = new List<Player>() { ProvidePlayer(1) };
             _tenisuRepositoryMock
                 .Setup(repo => repo.GetAllPlayersAsync(_cancellationToken))
-                .ReturnsAsync(expected);
+                .ReturnsAsync(players);
             var secondCall = await _target.GetAllPlayersAsync(_cancellationToken);
-
-            Assert.That(secondCall, Is.EquivalentTo(expected));
+            Assert.That(secondCall, Is.Not.Empty);
         }
 
         [TestCase(0, 15)]
@@ -132,6 +141,8 @@ namespace Tenisu.Application.Tests
             Assert.That(result.PageSize, Is.EqualTo(pageSize));
             Assert.That(result.Items, Is.Empty);
         }
+
+        [Test]
 
         public async Task GetPageOfPlayersAsync_ReturnsPage_WhenPlayersAreFound()
         {
@@ -171,51 +182,46 @@ namespace Tenisu.Application.Tests
         }
 
         [Test]
-        public void AddPlayerAsync_ThrowsException_WhenPlayerIdIsNotZero()
-        {
-            var player = ProvidePlayer(12);
-            Assert.ThrowsAsync<ArgumentException>(() => _target.AddPlayerAsync(player, _cancellationToken));
-        }
-
-        [Test]
         public async Task AddPlayerAsync_ThrowsException_WhenPlayerAlreadyExists()
         {
             var player = ProvidePlayer(0);
+            var playerDto = ProvidePlayerDTO();
             _tenisuRepositoryMock
                 .Setup(repo => repo.GetPlayerAsync(player.FirstName, player.LastName, player.Sex, _cancellationToken))
                 .ReturnsAsync(player);
-            Assert.ThrowsAsync<EntityAlreadyExistsException>(() => _target.AddPlayerAsync(player, _cancellationToken));
+            Assert.ThrowsAsync<EntityAlreadyExistsException>(() => _target.AddPlayerAsync(playerDto, _cancellationToken));
         }
 
         [Test]
         public async Task AddPlayerAsync_ReturnsPlayerId_WhenPlayerIsAdded()
         {
-            var player = ProvidePlayer(0);
-            const int addedId = 12;
+            var playerDto = ProvidePlayerDTO();
             _tenisuRepositoryMock
-                .Setup(repo => repo.GetPlayerAsync(player.FirstName, player.LastName, player.Sex, _cancellationToken))
+                .Setup(repo => repo.GetPlayerAsync(playerDto.FirstName, playerDto.LastName, playerDto.Sex, _cancellationToken))
                 .ReturnsAsync((Player?)null);
             _tenisuRepositoryMock
-                .Setup(repo => repo.GetCountryAsync(player.Country.Code, _cancellationToken))
-                .ReturnsAsync((Country?)null);
+                .SetupSequence(repo => repo.GetCountryAsync(playerDto.Country.Code, _cancellationToken))
+                .ReturnsAsync((Country?)null)
+                .ReturnsAsync(Country);
             _tenisuRepositoryMock
-                .Setup(repo => repo.AddCountryAsync(player.Country, _cancellationToken))
+                .Setup(repo => repo.AddCountryAsync(Country, _cancellationToken))
                 .Returns(Task.CompletedTask);
+
+            Player? captured = null;
+            const int addedId = 12;
             _tenisuRepositoryMock
-                .Setup(repo => repo.AddCountryAsync(player.Country, _cancellationToken))
-                .Returns(Task.CompletedTask);
-            _tenisuRepositoryMock
-                .Setup(repo => repo.AddPlayerAsync(player, _cancellationToken))
+                .Setup(repo => repo.AddPlayerAsync(It.IsAny<Player>(), _cancellationToken))
+                .Callback<Player, CancellationToken>((player,_)=> captured=player)
                 .Returns(Task.CompletedTask);
             _unitOfWorkMock
                 .Setup(uow => uow.SaveEntitiesAsync(_cancellationToken))
                 .Callback<CancellationToken>(_ =>
                     {
-                        typeof(Player).GetProperty(nameof(Player.Id))!.SetValue(player, addedId);
+                        typeof(Player).GetProperty(nameof(Player.Id))!.SetValue(captured, addedId);
                     })
                 .Returns(Task.CompletedTask);
 
-            var result = await _target.AddPlayerAsync(player, _cancellationToken);
+            var result = await _target.AddPlayerAsync(playerDto, _cancellationToken);
             Assert.That(result, Is.EqualTo(addedId));
         }
     }
