@@ -1,5 +1,4 @@
 using System.Text.Json.Serialization;
-using System.Threading.RateLimiting;
 using Tenisu.Application;
 using Tenisu.Infrastructure;
 using Tenisu.Infrastructure.Initialization;
@@ -29,16 +28,7 @@ namespace Tenisu.WebApi
                 });
 
             builder.Services.AddOpenApi();
-            builder.Services.AddRateLimiter(options =>
-            {
-                options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
-                options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(_ =>
-                    RateLimitPartition.GetFixedWindowLimiter("global", _ => new FixedWindowRateLimiterOptions
-                    {
-                        PermitLimit = 100,
-                        Window = TimeSpan.FromMinutes(1)
-                    }));
-            });
+            builder.Services.ConfigureRateLimiting(builder.Configuration);
             
             //App :
             var app = builder.Build();

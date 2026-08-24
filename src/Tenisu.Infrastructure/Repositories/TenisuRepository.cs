@@ -51,7 +51,7 @@ namespace Tenisu.Infrastructure.Repositories
             var playersQuery = _dbContext.Players
                 .AsNoTracking()
                 .Include(x => x.Country)
-                .OrderBy(p => p.Id)
+                .OrderBy(p => p.Id)// vital for paging consistency
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize);
 
