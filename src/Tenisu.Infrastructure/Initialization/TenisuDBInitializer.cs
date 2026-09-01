@@ -6,13 +6,13 @@ namespace Tenisu.Infrastructure.Initialization
 {
     public static class TenisuDBInitializer
     {
-        public static async Task InitializeAsync(IServiceProvider serviceProvider, CancellationToken token)
+        public static async Task InitializeAsync(IServiceProvider serviceProvider, CancellationToken cancellationToken)
         {
             using var scope = serviceProvider.CreateScope();
 
             var dbContext = scope.ServiceProvider.GetRequiredService<TenisuDbContext>();
 
-            await dbContext.Database.MigrateAsync(token);
+            await dbContext.Database.MigrateAsync(cancellationToken);
         }
     }
 }

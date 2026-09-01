@@ -4,15 +4,22 @@ namespace Tenisu.Domain.Entities
 {
     public record Player
     {
+        /// <summary> Unique Id number of the player. A value will be provided for you. </summary>
         public int Id { get; init; }
+        /// <summary> The player's first name </summary>
         public string FirstName { get; init; }
+        /// <summary>The player's last name </summary>
         public string LastName { get; init; }
-
-        private string? _shortName;
-        public string ShortName => _shortName ??= GetShortName();
+        /// <summary> A abreviation of the player's full name </summary>
+        /// <example>N.DJO</example>
+        public string ShortName => GetShortName();
+        /// <summary> The player's sex </summary>
         public Sex Sex { get; init; }
+        /// <summary>The player's Country </summary>
         public Country Country { get; init; }//Navigation property
+        /// <summary>The player's Picture </summary>
         public Uri Picture { get; init; }
+        /// <summary>The player's Data </summary>
         public Data Data { get; init; }//Owned type
 
         private Player()

@@ -31,7 +31,7 @@ namespace Tenisu.WebApi.Controllers
             return Ok(median);
         }
 
-        [HttpGet("MostSuccesfulCountry")]
+        [HttpGet("MostSuccessfulCountry")]
         [ProducesResponseType<CountryDTO>(StatusCodes.Status200OK)]
         public async Task<ActionResult<CountryDTO>> GetMostSuccessfulCountry(CancellationToken cancellationToken)
         {

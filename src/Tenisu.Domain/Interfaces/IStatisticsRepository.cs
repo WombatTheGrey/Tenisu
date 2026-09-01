@@ -6,6 +6,6 @@ namespace Tenisu.Domain.Interfaces
     {
         Task<Country> GetMostSuccessfulCountryAsync(CancellationToken cancellationToken);
         Task<double> GetAverageIMCAsync(CancellationToken cancellationToken);
-        Task<double> GetMedianPlayerHeight(CancellationToken cancellationToken);
+        Task<double> GetMedianPlayerHeightAsync(CancellationToken cancellationToken);
     }
 }

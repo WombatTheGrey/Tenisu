@@ -16,7 +16,7 @@ namespace Tenisu.Application.Services
         }
 
         public Task<double> GetAverageIMCAsync(CancellationToken cancellationToken) => _statisticsRepository.GetAverageIMCAsync(cancellationToken);
-        public Task<double> GetMedianPlayerHeightAsync(CancellationToken cancellationToken) => _statisticsRepository.GetMedianPlayerHeight(cancellationToken);
+        public Task<double> GetMedianPlayerHeightAsync(CancellationToken cancellationToken) => _statisticsRepository.GetMedianPlayerHeightAsync(cancellationToken);
         public async Task<CountryDTO> GetMostSuccessfulCountryAsync(CancellationToken cancellationToken)
         {
             var country = await _statisticsRepository.GetMostSuccessfulCountryAsync(cancellationToken);

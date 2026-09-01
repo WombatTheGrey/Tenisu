@@ -54,12 +54,12 @@ namespace Tenisu.Application.Services
         {
             ArgumentNullException.ThrowIfNull(playerDto);
 
-            _logger.LogInformation("Trying to add a new player '{player}'", playerDto.FirstName+playerDto.LastName);//log pattern ??
+            _logger.LogInformation("Trying to add a new player '{firstName} {LastName}'", playerDto.FirstName,playerDto.LastName);
 
             var retrievedPlayer = await _tenisuRepository.GetPlayerAsync(playerDto.FirstName, playerDto.LastName, playerDto.Sex, cancellationToken); 
             if(retrievedPlayer is not null)
             {
-                _logger.LogInformation("The player '{player}' already exists and will not be added", playerDto.FirstName + playerDto.LastName);
+                _logger.LogInformation("The player '{firstName} {LastName}' already exists and will not be added", playerDto.FirstName, playerDto.LastName);
                 throw new EntityAlreadyExistsException("Player already exists");
             }
 

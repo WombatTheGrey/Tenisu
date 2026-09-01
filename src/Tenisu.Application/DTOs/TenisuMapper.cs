@@ -7,6 +7,8 @@ namespace Tenisu.Application.DTOs
     public partial class TenisuMapper
     {
         //DTO to Domain
+        [MapProperty(nameof(DataDTO.WeightInGrams), nameof(Data.Weight))]
+        [MapProperty(nameof(DataDTO.HeightInCm), nameof(Data.Height))]
         public partial Data ToDomain(DataDTO dataDTO);
         public partial Country ToDomain(CountryDTO countryDTO);
 
@@ -14,6 +16,8 @@ namespace Tenisu.Application.DTOs
         public partial Player ToDomain(PlayerDTO playerDTO);
 
         //Domain to DTO
+        [MapProperty(nameof(Data.Weight), nameof(DataDTO.WeightInGrams))]
+        [MapProperty(nameof(Data.Height), nameof(DataDTO.HeightInCm))]
         public partial DataDTO ToDTO(Data data);
         public partial CountryDTO ToDTO(Country country);
 

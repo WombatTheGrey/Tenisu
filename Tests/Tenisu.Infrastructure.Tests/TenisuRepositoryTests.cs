@@ -82,7 +82,7 @@ namespace Tenisu.Infrastructure.Tests
         [TestCase("  ", "value")]
         [TestCase("value", "")]
         [TestCase("value", "  ")]
-        public async Task GetPlayerAsync_ThrowAnException_WhenInvalidInputProvided(string? firstName, string? lastName)
+        public void GetPlayerAsync_ThrowAnException_WhenInvalidInputProvided(string? firstName, string? lastName)
         {
             Assert.ThrowsAsync<ArgumentException>(() => _target.GetPlayerAsync(firstName!, lastName!, Sex.F, CancellationToken));
         }
@@ -173,7 +173,7 @@ namespace Tenisu.Infrastructure.Tests
 
         [TestCase(-1, 10)]
         [TestCase(1, -1)]
-        public async Task GetPlayersByPageAsync_ThrowsArgumentException_WhenInvalidParameters(int page, int pageSize)
+        public void GetPlayersByPageAsync_ThrowsArgumentException_WhenInvalidParameters(int page, int pageSize)
         {
             Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => _target.GetPlayersByPageAsync(page, pageSize, CancellationToken));
         }

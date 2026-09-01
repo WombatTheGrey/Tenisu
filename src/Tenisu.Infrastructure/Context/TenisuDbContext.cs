@@ -12,13 +12,7 @@ namespace Tenisu.Infrastructure.Context
         {
         }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => base.OnConfiguring(optionsBuilder);
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.ApplyConfigurationsFromAssembly(typeof(TenisuDbContext).Assembly);
-
-        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
-            => base.ConfigureConventions(configurationBuilder);
     }
 }

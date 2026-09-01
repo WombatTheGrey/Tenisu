@@ -5,11 +5,17 @@ namespace Tenisu.Domain.Entities
     //Owned type
     public sealed record Data
     {
+        /// <summary>Rank of the player. n°1 is the best ranked player </summary>
         public int Rank { get; init; }
+        /// <summary> Total number of points </summary>
         public int Points { get; init; }
+        /// <summary> Weight in grams </summary>
         public int Weight { get; init; }
+        /// <summary> Height in cm </summary>
         public int Height { get; init; }
+        /// <summary> Age </summary>
         public int Age { get; init; }
+        /// <summary> Results of the last 5 matches </summary>
         public IReadOnlyCollection<int> Last { get; init; }//represented as int for convenance. But could be a more appropriate datatype because the values are only 1 and 0.
 
         private Data()

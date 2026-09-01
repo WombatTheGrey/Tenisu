@@ -44,7 +44,7 @@ namespace Tenisu.Infrastructure.Tests
         [Test]
         public async Task GetMedianPlayerHeight_ReturnsExpectedValue()
         {
-            var result = await _target.GetMedianPlayerHeight(CancellationToken);
+            var result = await _target.GetMedianPlayerHeightAsync(CancellationToken);
             Assert.That(result, Is.EqualTo(175));
 
             var p5Data = new Data(5, 123, 50000, 150, 25, [0, 1, 0, 1, 0]);
@@ -52,7 +52,7 @@ namespace Tenisu.Infrastructure.Tests
             await DbContext.Players.AddAsync(newPlayer, CancellationToken);
             await DbContext.SaveChangesAsync(CancellationToken);
 
-            result = await _target.GetMedianPlayerHeight(CancellationToken);
+            result = await _target.GetMedianPlayerHeightAsync(CancellationToken);
             Assert.That(result, Is.EqualTo(170));
         }
 

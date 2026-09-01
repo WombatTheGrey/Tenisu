@@ -22,9 +22,9 @@ namespace Tenisu.Infrastructure.Repositories
             return Math.Round(average, 4);
         }
 
-        public async Task<double> GetMedianPlayerHeight(CancellationToken cancellationToken)
+        public async Task<double> GetMedianPlayerHeightAsync(CancellationToken cancellationToken)
         {
-            var count = await _dbContext.Players.CountAsync(cancellationToken);
+            var count = await _dbContext.Players.AsNoTracking().CountAsync(cancellationToken);
 
             var median = await _dbContext.Players.AsNoTracking()
                 .OrderBy(p => p.Data.Height)

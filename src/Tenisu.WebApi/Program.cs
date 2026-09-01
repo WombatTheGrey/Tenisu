@@ -1,6 +1,8 @@
 using System.Text.Json.Serialization;
+using Serilog;
 using Tenisu.Application;
 using Tenisu.Infrastructure;
+using Tenisu.Infrastructure.Context;
 using Tenisu.Infrastructure.Initialization;
 using Tenisu.WebApi.Handlers;
 
@@ -10,36 +12,45 @@ namespace Tenisu.WebApi
     {
         public static async Task Main(string[] args)
         {
-            //Builder :
-            var builder = WebApplication.CreateBuilder(args);
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Information()
+                .Enrich.FromLogContext()
+                .WriteTo.Console()
+                .CreateBootstrapLogger();
 
-            builder.Services.AddInfrastructure(builder.Configuration);
-            builder.Services.AddApplication();
-
-            builder.Services.AddProblemDetails();
-            builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-
-            builder.Services
-                .AddControllers()
-                .AddJsonOptions(options =>
-                {
-                    options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
-                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-                });
-
-            builder.Services.AddOpenApi();
-            builder.Services.ConfigureRateLimiting(builder.Configuration);
-            
-            //App :
-            var app = builder.Build();
+            Log.Information("Tenisu API is starting.");
             try
             {
-                if (app.Configuration.GetValue<bool>("EnableDatabaseMigration"))
-                {
-                    await TenisuDBInitializer.InitializeAsync(app.Services, app.Lifetime.ApplicationStopping);
-                }
+                //Builder :
+                var builder = WebApplication.CreateBuilder(args);
+                builder.Configuration.ConfigureAzureKeyVault();
 
-                app.UseExceptionHandler();
+                builder.Host.ConfigureSerilog();
+
+                builder.Services.AddInfrastructure(builder.Configuration);
+                builder.Services.AddApplication();
+
+                builder.Services.AddProblemDetails();
+                builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
+                builder.Services
+                    .AddControllers()
+                    .AddJsonOptions(options =>
+                    {
+                        options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+                        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                    });
+
+                builder.Services.AddHealthChecks()
+                    .AddDbContextCheck<TenisuDbContext>("TenisuDB");
+
+                builder.Services.AddOpenApi();
+                builder.Services.ConfigureRateLimiting(builder.Configuration);
+
+                //App :
+                var app = builder.Build();
+                app.UseSerilogRequestLogging();
+                app.UseExceptionHandler();                
 
                 app.MapOpenApi();
                 app.UseSwaggerUI(options =>
@@ -50,16 +61,24 @@ namespace Tenisu.WebApi
 
                 app.UseHttpsRedirection();
                 app.UseRateLimiter();
-                app.UseAuthorization();
                 app.MapControllers();
+                app.MapHealthChecks("/health");
+
+                if (app.Configuration.GetValue<bool>("EnableDatabaseMigration"))
+                {
+                    await TenisuDBInitializer.InitializeAsync(app.Services, app.Lifetime.ApplicationStopping);
+                }
 
                 app.Run();
             }
             catch (Exception ex)
             {
-                var logger = app.Services.GetRequiredService<ILogger<Program>>();
-                logger.LogCritical(ex, "Application terminated unexpectedly.");
+                Log.Fatal(ex, "Application terminated unexpectedly.");
                 throw;
+            }
+            finally
+            {
+                Log.CloseAndFlush();
             }
         }
     }

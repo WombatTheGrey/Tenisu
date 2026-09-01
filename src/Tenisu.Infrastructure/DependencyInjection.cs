@@ -22,8 +22,7 @@ namespace Tenisu.Infrastructure
 
                 options.UseSeeding((db, _) =>
                 {
-                    TenisuSeeder.SeedAsync((TenisuDbContext)db, CancellationToken.None)
-                    .GetAwaiter().GetResult();
+                    throw new NotSupportedException("Synchronous seeding is not supported. Use MigrateAsync/EnsureCreatedAsync.");
                 });
 
                 options.UseAsyncSeeding(async (db, _, cancellationToken) =>

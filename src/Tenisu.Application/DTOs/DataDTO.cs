@@ -4,8 +4,8 @@
     {
         public int Rank { get; init; }
         public int Points { get; init; }
-        public int Weight { get; init; }
-        public int Height { get; init; }
+        public int WeightInGrams { get; init; }
+        public int HeightInCm { get; init; }
         public int Age { get; init; }
         public List<int> Last { get; init; }
 
@@ -13,8 +13,8 @@
         {
             Rank = rank;
             Points = points;
-            Weight = weight;
-            Height = height;
+            WeightInGrams = weight;
+            HeightInCm = height;
             Age = age;
             Last = last;
         }

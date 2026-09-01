@@ -31,6 +31,7 @@ namespace Tenisu.WebApi.Controllers
         }
 
         [HttpGet("All")]
+        [ProducesResponseType<IEnumerable<PlayerResponseDTO>>(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<PlayerResponseDTO>>> GetAllPlayers(CancellationToken cancellationToken)
         {
             var players = await _playerService.GetAllPlayersAsync(cancellationToken);
@@ -38,6 +39,7 @@ namespace Tenisu.WebApi.Controllers
         }
 
         [HttpGet("Page")]
+        [ProducesResponseType<Page<PlayerResponseDTO>>(StatusCodes.Status200OK)]
         public async Task<ActionResult<Page<PlayerResponseDTO>>> GetPageOfPlayers(int pageNum, int pageSize, CancellationToken cancellationToken)
         {
             var playersPage = await _playerService.GetPageOfPlayersAsync(pageNum, pageSize, cancellationToken);
