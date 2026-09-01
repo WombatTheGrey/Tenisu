@@ -16,7 +16,7 @@ namespace Tenisu.WebApi.Handlers
 
         public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
         {
-            _logger.LogError("An exception on route {path} has been handled : {exception}", httpContext.Request.Path, exception);
+            _logger.LogError(exception, "An exception on route {path} has been handled : {exception}", httpContext.Request.Path, exception);
 
             var (statusCode, message) = exception switch
             {

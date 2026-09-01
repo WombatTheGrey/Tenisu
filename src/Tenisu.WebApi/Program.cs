@@ -26,6 +26,7 @@ namespace Tenisu.WebApi
                 builder.Configuration.ConfigureAzureKeyVault();
 
                 builder.Host.ConfigureSerilog();
+                Log.Information("Tenisu API is starting : Building");
 
                 builder.Services.AddInfrastructure(builder.Configuration);
                 builder.Services.AddApplication();
@@ -49,6 +50,7 @@ namespace Tenisu.WebApi
 
                 //App :
                 var app = builder.Build();
+                Log.Information("Tenisu API is starting : Preparing the run");
                 app.UseSerilogRequestLogging();
                 app.UseExceptionHandler();                
 
@@ -69,6 +71,7 @@ namespace Tenisu.WebApi
                     await TenisuDBInitializer.InitializeAsync(app.Services, app.Lifetime.ApplicationStopping);
                 }
 
+                Log.Information("Tenisu API is starting : Running");
                 app.Run();
             }
             catch (Exception ex)

@@ -18,7 +18,10 @@ namespace Tenisu.Infrastructure
 
             services.AddDbContextPool<TenisuDbContext>(options =>
             {
-                options.UseSqlServer(connectionString);
+                options.UseSqlServer(connectionString, sqlOptions =>
+                {
+                    sqlOptions.EnableRetryOnFailure();
+                });
 
                 options.UseSeeding((db, _) =>
                 {
