@@ -1,6 +1,7 @@
 # Tenisu API
 
-A small ASP.NET Core 10 Web API that manages tennis players and exposes a few statistics over them. Started as a technical test, grew into a portfolio project used to explore modern .NET, layered architecture, and an Azure-ready configuration story.
+A small ASP.NET Core 10 Web API that manages tennis players and exposes a few statistics over them.
+Started as a technical test, grew into a portfolio project used to explore modern .NET, layered architecture, and an Azure-ready configuration story.
 
 ## What it does
 
@@ -15,7 +16,7 @@ src/
   Tenisu.Domain           - Entities, value objects, domain interfaces & exceptions.
   Tenisu.Application      - Use cases (services), DTOs, mapping (Mapperly).
   Tenisu.Infrastructure   - EF Core DbContext, repositories, seeding, migrations.
-  Tenisu.WebApi           - Controllers, middleware, DI composition root.
+  Tenisu.WebApi           - Controllers, middleware, DI.
 Tests/
   Tenisu.Application.Tests    - Unit tests (NUnit + Moq).
   Tenisu.Infrastructure.Tests - Integration tests against in-memory SQLite.
@@ -26,37 +27,8 @@ Dependencies flow inward: `WebApi` → `Application` → `Domain`, and `WebApi` 
 ## Prerequisites
 
 - [.NET 10 SDK](https://dotnet.microsoft.com/download)
-- SQL Server LocalDB (ships with Visual Studio) or any reachable SQL Server instance
+- SQL Server LocalDB (ships with Visual Studio) or any reachable SQL Server instance — the app was built with SQL Server in mind
 - Visual Studio 2026 (or VS Code with the C# Dev Kit)
-
-## Running locally
-
-1. Clone and restore:
-   ```powershell
-   git clone https://github.com/WombatTheGrey/Tenisu.git
-   cd Tenisu
-   dotnet restore
-   ```
-2. The default connection string in `appsettings.Development.json` targets LocalDB. To use your own server, override it via **user secrets** (recommended — never committed):
-   ```powershell
-   cd src\Tenisu.WebApi
-   dotnet user-secrets set "ConnectionStrings:TenisuDB" "<your-connection-string>"
-   ```
-3. Run the API:
-   ```powershell
-   dotnet run --project src\Tenisu.WebApi
-   ```
-   On first launch, migrations are applied and initial data is seeded (`EnableDatabaseMigration=true` in `appsettings.json`).
-4. Swagger UI: <https://localhost:59599/swagger>
-5. Health probe: <https://localhost:59599/health>
-
-## Running the tests
-
-```powershell
-dotnet test
-```
-
-Unit tests are tagged `[Category("Unit")]`; integration tests `[Category("Integration")]` and use SQLite in-memory.
 
 ## Configuration
 
@@ -73,11 +45,47 @@ Key settings:
 
 | Key | Purpose |
 |---|---|
-| `ConnectionStrings:TenisuDB` | SQL Server connection string. |
-| `KeyVaultUri` | Optional. If set, loads secrets from Azure Key Vault using `DefaultAzureCredential`. |
-| `EnableDatabaseMigration` | Runs EF Core migrations + seeding at startup. Disable in production; use the migration bundle instead. |
+| `ConnectionStrings:TenisuDB` | SQL Server connection string. Defaults to a LocalDB instance in `appsettings.Development.json` — change the value there if you want to point at another server, or override it via user secrets / environment variables. |
+| `KeyVaultUri` | Optional. If empty, Azure Key Vault is skipped entirely. If set, secrets are loaded via `DefaultAzureCredential`. |
+| `EnableDatabaseMigration` | Runs EF Core migrations + seeding at startup. Handy locally; would be turned off in production if a proper deployment pipeline handled the schema. |
 | `Serilog:*` | Sinks (console + Application Insights) and log levels. |
 | `RateLimiting:PermitLimit` / `Window` | Global fixed-window rate limiter. |
+
+## Running locally
+
+Defaults are already set up for a zero-config local run:
+
+- `KeyVaultUri` is **empty** in `appsettings.json`, so the app skips Azure Key Vault entirely.
+- `EnableDatabaseMigration` is **`true`**, so EF Core migrations are applied and the initial data set is seeded on startup.
+- The connection string in `appsettings.Development.json` points at **SQL Server LocalDB**. Edit that value directly if you want to target another SQL Server instance, or override it via user secrets.
+
+Then:
+
+1. Clone and restore:
+   ```powershell
+   git clone https://github.com/WombatTheGrey/Tenisu.git
+   cd Tenisu
+   dotnet restore
+   ```
+2. (Optional) override the connection string with **user secrets** instead of editing the file:
+   ```powershell
+   cd src\Tenisu.WebApi
+   dotnet user-secrets set "ConnectionStrings:TenisuDB" "<your-connection-string>"
+   ```
+3. Run the API:
+   ```powershell
+   dotnet run --project src\Tenisu.WebApi
+   ```
+4. Swagger UI: <https://localhost:59599/swagger>
+5. Health probe: <https://localhost:59599/health>
+
+## Running the tests
+
+```powershell
+dotnet test
+```
+
+Unit tests are tagged `[Category("Unit")]`; integration tests `[Category("Integration")]` and use SQLite in-memory.
 
 ## Observability
 
@@ -85,15 +93,30 @@ Key settings:
 - **`/health`** endpoint backed by `AddDbContextCheck<TenisuDbContext>` — verifies DB connectivity.
 - Per-request structured logs via `UseSerilogRequestLogging`.
 
-## Deploying to Azure
+## Running in Azure
 
-The app is designed for Azure App Service with:
-- Azure SQL Database (Entra-authenticated via managed identity)
-- Azure Key Vault for secrets
-- Application Insights for telemetry
-- Two App Service instances behind the platform front-end for horizontal scale
+A live instance is deployed at <https://tenisuwebapp-dncvcshwbgcfaya0.francecentral-01.azurewebsites.net> (Swagger: <https://tenisuwebapp-dncvcshwbgcfaya0.francecentral-01.azurewebsites.net/swagger>).
 
-DB schema is applied out-of-band using an EF Core migrations bundle, not at app startup. See [`docs/Deployment.md`](docs/Deployment.md) for the full portal walk-through.
+The app runs as a **single instance** on Azure, on the following resources:
+
+- **Azure App Service** (Web App, Free tier) — hosts the API. The Key Vault URI is injected as an environment variable (`KeyVaultUri`) so the app boots up wired to Key Vault without any config file change.
+- **Azure Key Vault** — holds the SQL connection string and the Application Insights connection string.
+- **Application Insights** — telemetry and Serilog sink.
+- **Azure SQL Server / Database** — the persistence layer.
+
+**No credentials are stored or handled anywhere in the app or its configuration.** Every Azure-to-Azure hop is authenticated via **managed identity**:
+
+- The App Service uses its **system-assigned managed identity** to authenticate to Key Vault (via `DefaultAzureCredential`) and to Azure SQL.
+- Access is granted through **Azure RBAC role assignments** (Key Vault Secrets User on the vault, and an Entra-based SQL user on the database) — no keys, no connection-string passwords, no secrets in App Service settings beyond the plain `KeyVaultUri`.
+
+
+## Possible next steps
+
+I'm aware of some gaps but I'm not actively developing this project right now. Things I'd look at if I picked it back up:
+
+- **Containerization** — package the API as a container image with Docker and run it on App Service for Containers.
+- **CI/CD pipeline** — build, test and deploy from GitHub Actions.
+- **Move migrations out of the app** — if a CI/CD pipeline is added, `EnableDatabaseMigration` would be turned off and the schema applied from the pipeline via an EF Core migration bundle instead of at app startup.
 
 ## License
 
