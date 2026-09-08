@@ -9,12 +9,12 @@
         public int Age { get; init; }
         public List<int> Last { get; init; }
 
-        public DataDTO(int rank, int points, int weight, int height, int age, List<int> last)
+        public DataDTO(int rank, int points, int weightInGrams, int heightInCm, int age, List<int> last)
         {
             Rank = rank;
             Points = points;
-            WeightInGrams = weight;
-            HeightInCm = height;
+            WeightInGrams = weightInGrams;
+            HeightInCm = heightInCm;
             Age = age;
             Last = last;
         }
