@@ -25,11 +25,11 @@ namespace Tenisu.Domain.Entities
 
         public Data(int rank, int points, int weight, int height, int age, IReadOnlyCollection<int> last)
         {
-            ArgumentOutOfRangeException.ThrowIfNegative(rank);
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(rank);
             ArgumentOutOfRangeException.ThrowIfNegative(points);
-            ArgumentOutOfRangeException.ThrowIfNegative(weight);
-            ArgumentOutOfRangeException.ThrowIfNegative(height);
-            ArgumentOutOfRangeException.ThrowIfNegative(age);
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(weight);
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(height);
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(age);
             ArgumentNullException.ThrowIfNull(last);
 
             Rank = rank;
