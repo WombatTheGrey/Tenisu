@@ -63,9 +63,9 @@ namespace Tenisu.Application.Tests
 
         [TestCase(0)]
         [TestCase(-1)]
-        public void GetPlayerAsync_ThowsException_WhenPlayerIdIsInvalid(int playerId)
+        public async Task GetPlayerAsync_ThowsException_WhenPlayerIdIsInvalid(int playerId)
         {
-            Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => _target.GetPlayerAsync(playerId, _cancellationToken));
+            await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => _target.GetPlayerAsync(playerId, _cancellationToken));
         }
 
         [Test]
@@ -116,9 +116,9 @@ namespace Tenisu.Application.Tests
 
         [TestCase(0, 15)]
         [TestCase(15, -1)]
-        public void GetPageOfPlayersAsync_ThowsException_WhenPlayerIdIsInvalid(int pageNum, int pageSize)
+        public async Task GetPageOfPlayersAsync_ThowsException_WhenPlayerIdIsInvalid(int pageNum, int pageSize)
         {
-            Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => _target.GetPageOfPlayersAsync(pageNum, pageSize, _cancellationToken));
+            await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => _target.GetPageOfPlayersAsync(pageNum, pageSize, _cancellationToken));
         }
 
         [Test]
@@ -176,9 +176,9 @@ namespace Tenisu.Application.Tests
         }
 
         [Test]
-        public void AddPlayerAsync_ThrowsException_WithNullPlayer()
+        public async Task AddPlayerAsync_ThrowsException_WithNullPlayer()
         {
-            Assert.ThrowsAsync<ArgumentNullException>(() => _target.AddPlayerAsync(null!, _cancellationToken));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => _target.AddPlayerAsync(null!, _cancellationToken));
         }
 
         [Test]
@@ -189,7 +189,7 @@ namespace Tenisu.Application.Tests
             _tenisuRepositoryMock
                 .Setup(repo => repo.GetPlayerAsync(player.FirstName, player.LastName, player.Sex, _cancellationToken))
                 .ReturnsAsync(player);
-            Assert.ThrowsAsync<EntityAlreadyExistsException>(() => _target.AddPlayerAsync(playerDto, _cancellationToken));
+            await Assert.ThrowsAsync<EntityAlreadyExistsException>(() => _target.AddPlayerAsync(playerDto, _cancellationToken));
         }
 
         [Test]

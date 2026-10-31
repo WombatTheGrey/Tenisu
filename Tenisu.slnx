@@ -3,6 +3,7 @@
     <File Path=".editorconfig" />
     <File Path="Directory.Build.props" />
     <File Path="Directory.Packages.props" />
+    <File Path="README.md" />
   </Folder>
   <Folder Name="/Tests/">
     <Project Path="Tests/Tenisu.Application.Tests/Tenisu.Application.Tests.csproj" Id="82d27272-6d1c-4cff-9f0d-5b25a9e7485f" />

@@ -82,9 +82,9 @@ namespace Tenisu.Infrastructure.Tests
         [TestCase("  ", "value")]
         [TestCase("value", "")]
         [TestCase("value", "  ")]
-        public void GetPlayerAsync_ThrowAnException_WhenInvalidInputProvided(string? firstName, string? lastName)
+        public async Task GetPlayerAsync_ThrowAnException_WhenInvalidInputProvided(string? firstName, string? lastName)
         {
-            Assert.ThrowsAsync<ArgumentException>(() => _target.GetPlayerAsync(firstName!, lastName!, Sex.F, CancellationToken));
+            await Assert.ThrowsAsync<ArgumentException>(() => _target.GetPlayerAsync(firstName!, lastName!, Sex.F, CancellationToken));
         }
 
         //Note : this test uses sqlite, and the implementation expects SQlServer. So SaveEntitiesAsync() will never throw EntityAlreadyExistsException
@@ -96,7 +96,7 @@ namespace Tenisu.Infrastructure.Tests
             await _target.AddPlayerAsync(player, CancellationToken);
             await this.UnitOfWork.SaveEntitiesAsync(CancellationToken);
             await _target.AddPlayerAsync(player, CancellationToken);
-            Assert.ThrowsAsync<DbUpdateException>(() => this.UnitOfWork.SaveEntitiesAsync(CancellationToken));
+            await Assert.ThrowsAsync<DbUpdateException>(() => this.UnitOfWork.SaveEntitiesAsync(CancellationToken));
         }
 
         [Test]
@@ -173,9 +173,9 @@ namespace Tenisu.Infrastructure.Tests
 
         [TestCase(-1, 10)]
         [TestCase(1, -1)]
-        public void GetPlayersByPageAsync_ThrowsArgumentException_WhenInvalidParameters(int page, int pageSize)
+        public async Task GetPlayersByPageAsync_ThrowsArgumentException_WhenInvalidParameters(int page, int pageSize)
         {
-            Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => _target.GetPlayersByPageAsync(page, pageSize, CancellationToken));
+            await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => _target.GetPlayersByPageAsync(page, pageSize, CancellationToken));
         }
 
         [Test]
