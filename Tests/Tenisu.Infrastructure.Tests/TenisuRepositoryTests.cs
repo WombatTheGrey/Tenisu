@@ -115,7 +115,12 @@ namespace Tenisu.Infrastructure.Tests
             await _target.AddPlayerAsync(player, CancellationToken);
             await this.UnitOfWork.SaveEntitiesAsync(CancellationToken);
             var retrieved = await _target.GetPlayerAsync(player.Id, CancellationToken);
-            Assert.That(retrieved, Is.Not.Null.And.EqualTo(player));
+            Assert.That(retrieved, Is.Not.Null);
+            Assert.That(retrieved.FirstName, Is.EqualTo(player.FirstName));
+            Assert.That(retrieved.LastName, Is.EqualTo(player.LastName));
+            Assert.That(retrieved.Sex, Is.EqualTo(player.Sex));
+            Assert.That(retrieved.Country, Is.EqualTo(player.Country));
+            Assert.That(retrieved.Picture, Is.EqualTo(player.Picture));
         }
 
         [Test]
