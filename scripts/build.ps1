@@ -1,23 +1,34 @@
 <#
 	.SYNOPSIS
-	Builds the application and produces the artifacts
+	Builds the a solution and produces the artifacts
 #>
 [CmdletBinding()]
-param()
+param(
+	[Parameter(Mandatory)][String] $solutionName,
+	[Parameter(Mandatory)][String] $artifactsDirectory
+)
 
-$commonScriptPath = "$PsScriptRoot\common.ps1"
+$commonScriptPath = Join-Path $PsScriptRoot "common.ps1"
 Write-Host "Dot-sourcing $commonScriptPath"
 . $commonScriptPath
 
 $root = Get-RepoRoot
-Write-Host "Setting location at $root"
-Set-Location $root
+$solutionPath = Join-Path $root $solutionName
+$artifactsPath = Join-Path $root $artifactsDirectory
+if(Test-Path $artifactsPath){
+	Write-Host "Cleaning $artifactsPath content"
+	Remove-Item $artifactsPath -Recurse -Force
+}
 
-Invoke-Native -Title 'Check version' -Command { dotnet --version}
+Invoke-Native -Title 'Check version' -Command { dotnet --version }
 
-Invoke-Native -Title 'Restore Packages' -Command { dotnet restore}
+Invoke-Native -Title 'Restore Packages' -Command { dotnet restore }
 
-Invoke-Native -Title 'Build' -Command { dotnet build --artifacts-path .\artifacts --no-restore --configuration Release --verbosity normal}
+Invoke-Native -Title 'Build' -Command {
+	dotnet build $solutionPath --no-restore `
+	--artifacts-path $artifactsPath `
+	--configuration Release
+}
 
 Write-Host ''
 Write-Host 'Build succeeded'  -ForegroundColor Green
