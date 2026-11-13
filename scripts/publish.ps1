@@ -1,10 +1,10 @@
 <#
 	.SYNOPSIS
-	Publishes the Web API to a folder ready for deployment
 #>
 [CmdletBinding()]
 param(
 	[Parameter(Mandatory)][String] $artifactsDirectory,
+	[Parameter(Mandatory)][String] $projectRelativePath,
 	[Parameter(Mandatory)][String] $outputDirectory
 )
 
@@ -18,6 +18,8 @@ if(! (Test-Path $artifactsPath)){
 	throw "Could not find the artifacts at $artifactsPath"
 }
 
+$projectPath = Join-Path $root $projectRelativePath
+
 $outputPath = Join-Path $artifactsPath $outputDirectory
 if(Test-Path $outputPath){
 	Write-Host "Cleaning $outputPath"
@@ -25,7 +27,7 @@ if(Test-Path $outputPath){
 }
 
 Invoke-Native -Title "Publishing" -Command {
-	dotnet publish --no-build --artifacts-path $artifactsPath `
+	dotnet publish $projectPath --no-build --artifacts-path $artifactsPath `
 	--configuration Release --output $outputPath
 }
 

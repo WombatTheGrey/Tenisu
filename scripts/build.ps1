@@ -22,7 +22,7 @@ if(Test-Path $artifactsPath){
 
 Invoke-Native -Title 'Check version' -Command { dotnet --version }
 
-Invoke-Native -Title 'Restore Packages' -Command { dotnet restore }
+Invoke-Native -Title 'Restore Packages' -Command { dotnet restore $solutionPath }
 
 Invoke-Native -Title 'Build' -Command {
 	dotnet build $solutionPath --no-restore `

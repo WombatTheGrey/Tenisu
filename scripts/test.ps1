@@ -4,6 +4,7 @@
 #>
 [CmdletBinding()]
 param(
+	[Parameter(Mandatory)][String] $solutionName,
 	[Parameter(Mandatory)][String] $artifactsDirectory
 )
 
@@ -12,6 +13,7 @@ Write-Host "Dot-sourcing $commonScriptPath"
 . $commonScriptPath
 
 $root = Get-RepoRoot
+$solutionPath = Join-Path $root $solutionName
 $artifactsPath = Join-Path $root $artifactsDirectory
 if(! (Test-Path $artifactsPath)){
 	throw "Could not find the artifacts at $artifactsPath"
@@ -24,10 +26,10 @@ if(Test-Path $testResultsDirectory){
 }
 
 Invoke-Native -Title 'Tests' -Command {
-	dotnet test "$artifactsDirectory\bin\*.Tests\release\*.Tests.dll" `
-	--logger trx --results-directory $testResultsDirectory `
-	-- RunConfiguration.MaxCpuCount=0
-	}
+	dotnet test $solutionPath --no-build --configuration Release `
+	--artifacts-path $artifactsPath `
+	--logger trx --results-directory $testResultsDirectory
+}
 
 Write-Host ''
 Write-Host "Tests passed. Reports in: $testResultsDirectory" -ForegroundColor Green
