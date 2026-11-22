@@ -1,6 +1,6 @@
 <#
 	.SYNOPSIS
-	Contains general settings and a helper method. Not intended for
+	Contains general settings and a helper method
 #>
 
 Set-StrictMode -Version Latest
