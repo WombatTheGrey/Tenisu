@@ -73,7 +73,7 @@ namespace Tenisu.Application.Services
             }
 
             var player = new Player(0, playerDto.FirstName, playerDto.LastName, playerDto.Sex,
-                country, playerDto.Picture, data);
+                savedCountry ?? country, playerDto.Picture, data);
 
             await _tenisuRepository.AddPlayerAsync(player, cancellationToken);
             await _unitOfWork.SaveEntitiesAsync(cancellationToken);
