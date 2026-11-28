@@ -18,15 +18,15 @@ namespace Tenisu.WebApi
                 .WriteTo.Console()
                 .CreateBootstrapLogger();
 
-            Log.Information("Tenisu API is starting.");
+            Log.Information("Tenisu API v:{version} is starting", AppVersion.Value);
             try
             {
                 //Builder :
                 var builder = WebApplication.CreateBuilder(args);
+                Log.Information("Tenisu API v:{version} is starting : Building", AppVersion.Value);
                 builder.Configuration.ConfigureAzureKeyVault();
 
-                builder.Host.ConfigureSerilog();
-                Log.Information("Tenisu API is starting : Building");
+                builder.ConfigureLogging();
 
                 builder.Services.AddInfrastructure(builder.Configuration);
                 builder.Services.AddApplication();
@@ -45,12 +45,20 @@ namespace Tenisu.WebApi
                 builder.Services.AddHealthChecks()
                     .AddDbContextCheck<TenisuDbContext>("TenisuDB");
 
-                builder.Services.AddOpenApi();
+                builder.Services.AddOpenApi(options =>
+                {
+                    options.AddDocumentTransformer((document, context, cancellationToken) =>
+                    {
+                        document.Info.Version = AppVersion.Value;
+                        return Task.CompletedTask;
+                    });
+                });
                 builder.Services.ConfigureRateLimiting(builder.Configuration);
 
+
                 //App :
+                Log.Information("Tenisu API v:{version} is starting : Preparing the run", AppVersion.Value);
                 var app = builder.Build();
-                Log.Information("Tenisu API is starting : Preparing the run");
                 app.UseSerilogRequestLogging();
                 app.UseExceptionHandler();                
 
@@ -71,7 +79,7 @@ namespace Tenisu.WebApi
                     await TenisuDBInitializer.InitializeAsync(app.Services, app.Lifetime.ApplicationStopping);
                 }
 
-                Log.Information("Tenisu API is starting : Running");
+                Log.Information("Tenisu API v:{version is starting : Running", AppVersion.Value);
                 app.Run();
             }
             catch (Exception ex)
