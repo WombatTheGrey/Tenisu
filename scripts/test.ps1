@@ -5,31 +5,35 @@
 [CmdletBinding()]
 param(
 	[Parameter(Mandatory)][String] $solutionName,
-	[Parameter(Mandatory)][String] $artifactsDirectory
+	[Parameter(Mandatory)][String] $artifactsDirectory,
+	[String] $testResultsDirectory = 'TestResults'
 )
 
 $commonScriptPath = Join-Path $PsScriptRoot "common.ps1"
 Write-Host "Dot-sourcing $commonScriptPath"
 . $commonScriptPath
 
-$root = Get-RepoRoot
-$solutionPath = Join-Path $root $solutionName
-$artifactsPath = Join-Path $root $artifactsDirectory
+$solutionPath = ConvertTo-AbsolutePath $solutionName
+if(!(Test-Path $solutionPath)){
+		throw "Could not find the solution at $solutionPath"
+}
+
+$artifactsPath = ConvertTo-AbsolutePath $artifactsDirectory
 if(! (Test-Path $artifactsPath)){
 	throw "Could not find the artifacts at $artifactsPath"
 }
 
-$testResultsDirectory = Join-Path $artifactsPath 'TestResults'
-if(Test-Path $testResultsDirectory){
-	Write-Host "Cleaning $testResultsDirectory content"
-	Remove-Item $testResultsDirectory -Recurse -Force
+$testResultsPath = Join-Path $artifactsPath $testResultsDirectory
+if(Test-Path $testResultsPath){
+	Write-Host "Cleaning $testResultsPath content"
+	Remove-Item $testResultsPath -Recurse -Force
 }
 
 Invoke-Native -Title 'Tests' -Command {
 	dotnet test $solutionPath --no-build --configuration Release `
 	--artifacts-path $artifactsPath `
-	--logger trx --results-directory $testResultsDirectory
+	--logger trx --results-directory $testResultsPath
 }
 
 Write-Host ''
-Write-Host "Tests passed. Reports in: $testResultsDirectory" -ForegroundColor Green
+Write-Host "Tests passed. Reports in: $testResultsPath" -ForegroundColor Green

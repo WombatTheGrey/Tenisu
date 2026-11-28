@@ -9,13 +9,21 @@ $ErrorActionPreference = 'Stop'
 function Get-RepoRoot{
 	# Split-Path Parent is the same as Cd ..
 	# It goes one folder up
-	return Split-Path -Parent $PSScriptRoot
+	return Split-Path $PSScriptRoot -Parent
+}
+
+function ConvertTo-AbsolutePath{
+	param(
+		[Parameter(Mandatory)][String] $path
+		)
+	$root = Get-RepoRoot
+	return [System.IO.Path]::GetFullPath($path, $root)	
 }
 
 function Invoke-Native{
 	param(
-		[Parameter(Mandatory)][string] $Title,
-		[Parameter(Mandatory)][scriptblock] $Command
+		[Parameter(Mandatory)][String] $Title,
+		[Parameter(Mandatory)][Scriptblock] $Command
 	)
 
 	Write-Host ''

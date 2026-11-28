@@ -5,32 +5,33 @@
 [CmdletBinding()]
 param(
 	[Parameter(Mandatory)][String] $artifactsDirectory,
-	[Parameter(Mandatory)][String] $projectToPublishRelativePath,
-	[Parameter(Mandatory)][String] $outputDirectory
+	[Parameter(Mandatory)][String] $projectToPublishPath,
+	[String] $publishDirectoryName = 'webapi'
 )
 
 $commonScriptPath = Join-Path $PsScriptRoot "common.ps1"
 Write-Host "Dot-sourcing $commonScriptPath"
 . $commonScriptPath
 
-$root = Get-RepoRoot
-$artifactsPath = Join-Path $root $artifactsDirectory
+$artifactsPath = ConvertTo-AbsolutePath $artifactsDirectory
 if(! (Test-Path $artifactsPath)){
 	throw "Could not find the artifacts at $artifactsPath"
 }
 
-$projectPath = Join-Path $root $projectToPublishRelativePath
+$projectPath = ConvertTo-AbsolutePath $projectToPublishPath
 
-$outputPath = Join-Path $artifactsPath $outputDirectory
-if(Test-Path $outputPath){
-	Write-Host "Cleaning $outputPath"
-	Remove-Item $outputPath -Recurse -Force
+$publishDirectory = Join-Path $artifactsPath $publishDirectoryName
+if(Test-Path $publishDirectory){
+	Write-Host "Cleaning $publishDirectory"
+	Remove-Item $publishDirectory -Recurse -Force
 }
 
 Invoke-Native -Title "Publishing" -Command {
-	dotnet publish $projectPath --no-build --artifacts-path $artifactsPath `
-	--configuration Release --output $outputPath
+	dotnet publish $projectPath --no-build `
+	--artifacts-path $artifactsPath `
+	--configuration Release `
+	--output $publishDirectory
 }
 
 Write-Host ''
-Write-Host "Application published to $outputPath" -ForegroundColor Green
+Write-Host "Application published to $publishDirectory" -ForegroundColor Green

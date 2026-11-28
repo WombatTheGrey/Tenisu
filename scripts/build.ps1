@@ -5,29 +5,33 @@
 [CmdletBinding()]
 param(
 	[Parameter(Mandatory)][String] $solutionName,
-	[Parameter(Mandatory)][String] $artifactsDirectory
+	[Parameter(Mandatory)][String] $artifactsDirectory,
+	[String] $VersionSuffix = 'untagged'
 )
 
 $commonScriptPath = Join-Path $PsScriptRoot "common.ps1"
 Write-Host "Dot-sourcing $commonScriptPath"
 . $commonScriptPath
 
-$root = Get-RepoRoot
-$solutionPath = Join-Path $root $solutionName
-$artifactsPath = Join-Path $root $artifactsDirectory
+$solutionPath = ConvertTo-AbsolutePath $solutionName
+if(!(Test-Path $solutionPath)){
+		throw "Could not find the solution at $solutionPath"
+}
+
+$artifactsPath = ConvertTo-AbsolutePath $artifactsDirectory
 if(Test-Path $artifactsPath){
 	Write-Host "Cleaning $artifactsPath content"
 	Remove-Item $artifactsPath -Recurse -Force
 }
 
 Invoke-Native -Title 'Check version' -Command { dotnet --version }
-
 Invoke-Native -Title 'Restore Packages' -Command { dotnet restore $solutionPath }
 
 Invoke-Native -Title 'Build' -Command {
 	dotnet build $solutionPath --no-restore `
 	--artifacts-path $artifactsPath `
-	--configuration Release
+	--configuration Release `
+	"-p:VersionSuffix=$VersionSuffix"
 }
 
 Write-Host ''
